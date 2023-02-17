@@ -6,6 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class CounterViewModel : ViewModel() {
-    var state by mutableStateOf(CounterState())
+    var state by mutableStateOf(CounterState(0))
         private set
 }
