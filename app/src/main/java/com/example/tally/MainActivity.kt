@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("id") { type = NavType.IntType })
                         ) {
                             val vm: CounterViewModel by viewModels()
-                            CounterScreen(vm)
+                            CounterScreen(vm, it.arguments?.getInt("id"))
                         }
                     }
                 }
