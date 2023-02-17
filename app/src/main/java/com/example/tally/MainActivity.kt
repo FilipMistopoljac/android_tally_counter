@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = "main") {
                         composable("main") {
                             val vm: MainViewModel by viewModels()
-                            MainScreen(vm)
+                            MainScreen(vm, navController)
                         }
                         composable(
                             route = "counter/{id}",
@@ -45,9 +45,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-
-                val vm: MainViewModel by viewModels()
-                MainScreen(vm)
             }
         }
     }

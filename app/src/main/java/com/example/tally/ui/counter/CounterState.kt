@@ -1,3 +1,3 @@
 package com.example.tally.ui.counter
 
-data class CounterState()
+data class CounterState(val id: Int)

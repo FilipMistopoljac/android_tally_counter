@@ -10,13 +10,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.tally.data.model.dao.Counter
 import com.example.tally.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    vm: MainViewModel
+    vm: MainViewModel,
+    navController: NavHostController
 ) {
     var open by remember { mutableStateOf(false) }
 
@@ -44,7 +46,7 @@ fun MainScreen(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 items(vm.state.counters) {
-                    CounterCard(counter = it)
+                    CounterCard(counter = it, onClick = { navController.navigate("counter/$it")})
                 }
             }
         }
@@ -53,7 +55,7 @@ fun MainScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CounterCard(counter: Counter) {
+fun CounterCard(counter: Counter, onClick: (Counter) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         onClick = {  }
