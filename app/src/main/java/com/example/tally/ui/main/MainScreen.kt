@@ -1,7 +1,6 @@
 package com.example.tally.ui.main
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -10,7 +9,9 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.example.tally.data.model.dao.Counter
+import com.example.tally.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,11 +39,30 @@ fun MainScreen(
                 onDismiss = { open = false }
             )
 
-            LazyColumn {
+            LazyColumn(
+                contentPadding = PaddingValues(10.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
                 items(vm.state.counters) {
-                    Text(it.name)
+                    CounterCard(counter = it)
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CounterCard(counter: Counter) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {  }
+    ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
+        ) {
+            Text(text = counter.name, style = Typography.displayMedium)
         }
     }
 }
@@ -69,7 +89,7 @@ fun CounterDialog(open: Boolean, onConfirm: (String) -> Unit, onDismiss: () -> U
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss. also { name = "" }) {
+            TextButton(onClick = onDismiss.also { name = "" }) {
                 Text(text = "Dismiss")
             }
         },

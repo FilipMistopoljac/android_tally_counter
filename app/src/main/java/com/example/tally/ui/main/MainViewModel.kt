@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tally.data.model.dao.Counter
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -15,6 +16,10 @@ class MainViewModel : ViewModel() {
 
     init {
         all()
+    }
+
+    fun bla() {
+        Counter.all().asFlow()
     }
 
     fun all() {
@@ -29,5 +34,6 @@ class MainViewModel : ViewModel() {
                 Counter.new { this.name = name }
             }
         }
+        all()
     }
 }

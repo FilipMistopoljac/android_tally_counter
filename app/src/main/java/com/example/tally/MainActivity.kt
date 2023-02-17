@@ -7,10 +7,15 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.tally.data.model.configureDatabase
+import com.example.tally.ui.counter.CounterScreen
+import com.example.tally.ui.counter.CounterViewModel
 import com.example.tally.ui.main.MainScreen
 import com.example.tally.ui.main.MainViewModel
 import com.example.tally.ui.theme.TallyTheme
@@ -25,10 +30,26 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val vm: MainViewModel by viewModels()
-                    MainScreen(vm)
+                    val navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = "main") {
+                        composable("main") {
+                            val vm: MainViewModel by viewModels()
+                            MainScreen(vm)
+                        }
+                        composable(
+                            route = "counter/{id}",
+                            arguments = listOf(navArgument("id") { type = NavType.IntType })
+                        ) {
+                            val vm: CounterViewModel by viewModels()
+                            CounterScreen(vm)
+                        }
+                    }
                 }
+
+                val vm: MainViewModel by viewModels()
+                MainScreen(vm)
             }
         }
     }
 }
+
