@@ -14,6 +14,14 @@ class MainViewModel : ViewModel() {
     var state: MainState by mutableStateOf(MainState(emptyList()))
         private set
 
+    private fun state(block: MainState.() -> MainState) {
+        viewModelScope.launch {
+            transaction {
+                state = state.block()
+            }
+        }
+    }
+
     init {
         all()
     }
@@ -23,9 +31,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun all() {
-        viewModelScope.launch {
-            state = state.copy(counters = transaction {Counter.all().toList()} )
-        }
+        state { copy(counters = Counter.all().toList())}
     }
 
     fun new(name: String) {

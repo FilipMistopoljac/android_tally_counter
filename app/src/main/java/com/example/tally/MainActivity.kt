@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
+import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,6 +19,7 @@ import com.example.tally.ui.counter.CounterScreen
 import com.example.tally.ui.counter.CounterViewModel
 import com.example.tally.ui.main.MainScreen
 import com.example.tally.ui.main.MainViewModel
+import com.example.tally.ui.screens.Navigation
 import com.example.tally.ui.theme.TallyTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,20 +32,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "main") {
-                        composable("main") {
-                            val vm: MainViewModel by viewModels()
-                            MainScreen(vm, navController)
-                        }
-                        composable(
-                            route = "counter/{id}",
-                            arguments = listOf(navArgument("id") { type = NavType.IntType })
-                        ) {
-                            val vm: CounterViewModel by viewModels()
-                            CounterScreen(vm, it.arguments?.getInt("id"))
-                        }
-                    }
+                    com.example.tally.ui.screens.Navigation()
                 }
             }
         }

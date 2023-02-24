@@ -1,3 +1,5 @@
 package com.example.tally.ui.counter
 
-data class CounterState(val id: Int)
+import com.example.tally.data.model.dao.Counter
+
+data class CounterState(val id: Int, val counter: Counter?)

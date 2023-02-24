@@ -46,7 +46,7 @@ fun MainScreen(
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 items(vm.state.counters) {
-                    CounterCard(counter = it, onClick = { navController.navigate("counter/$it")})
+                    CounterCard(counter = it, onClick = { navController.navigate("counter/$it") })
                 }
             }
         }
@@ -55,14 +55,15 @@ fun MainScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CounterCard(counter: Counter, onClick: (Counter) -> Unit) {
+fun CounterCard(counter: Counter, onClick: (Int) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        onClick = {  }
+        onClick = { onClick(counter.id.value) }
     ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
         ) {
             Text(text = counter.name, style = Typography.displayMedium)
         }
