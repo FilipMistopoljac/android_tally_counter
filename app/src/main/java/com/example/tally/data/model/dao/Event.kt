@@ -8,6 +8,6 @@ import org.jetbrains.exposed.dao.id.EntityID
 class Event(id: EntityID<Int>): IntEntity(id) {
     companion object : IntEntityClass<Event>(Events)
 
-    val timestamp by Events.timestamp
-    val counter by Counter referencedOn Events.counter
+    var timestamp by Events.timestamp
+    var counter by Counter referencedOn Events.counter
 }
