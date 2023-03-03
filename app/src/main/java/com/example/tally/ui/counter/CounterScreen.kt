@@ -17,9 +17,9 @@ import androidx.compose.ui.unit.dp
 import com.example.tally.data.model.dao.Event
 import com.example.tally.ui.theme.Typography
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
+import kotlinx.datetime.DateTimeUnit.Companion.HOUR
+import kotlinx.datetime.DateTimeUnit.Companion.MINUTE
 
 
 @Composable
@@ -96,7 +96,7 @@ fun EditDialog(
             )
         }
     }
-    val datePickerState = remember(timestamp){
+    val datePickerState = remember(timestamp) {
         DatePickerState(
             initialSelectedDateMillis = timestamp.toEpochMilliseconds(),
             initialDisplayedMonthMillis = timestamp.toEpochMilliseconds(),
@@ -114,7 +114,17 @@ fun EditDialog(
                 0 -> Button(onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } }) {
                     Text(text = "Next")
                 }
-                1 -> Button(onClick = {}) {
+                1 -> Button(onClick = {
+
+                    Instant
+                        .fromEpochMilliseconds(
+                            epochMilliseconds = datePickerState.selectedDateMillis
+                                ?: Clock.System.now().toEpochMilliseconds()
+                        )
+                        .plus(timePickerState.hour, HOUR)
+                        .plus(timePickerState.minute, MINUTE)
+
+                }) {
                     Text(text = "Confirm")
                 }
             }
