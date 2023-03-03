@@ -15,11 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.tally.data.model.dao.Event
+import com.example.tally.data.model.toInstant
+import com.example.tally.data.model.toLocalDateTime
 import com.example.tally.ui.theme.Typography
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
+import kotlinx.datetime.DateTimeUnit.Companion.HOUR
+import kotlinx.datetime.DateTimeUnit.Companion.MINUTE
+import kotlin.properties.Delegates
 
 
 @Composable
@@ -27,13 +30,13 @@ fun CounterScreen(
     vm: CounterViewModel,
 ) {
     var open by remember { mutableStateOf(false) }
-    var event: Event? by remember { mutableStateOf(null) }
+    var event: Event by Delegates.notNull();
 
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
             title = {
                 Text(
-                    "${vm.state.counter?.name}", maxLines = 1, overflow = TextOverflow.Ellipsis
+                    "${vm.state.counter.name}", maxLines = 1, overflow = TextOverflow.Ellipsis
                 )
             },
         )
@@ -47,7 +50,6 @@ fun CounterScreen(
         Box(modifier = Modifier.padding(paddingValues)) {
 
             EditDialog(
-                open = open,
                 event = event,
                 onConfirm = {},
                 onDismiss = { open = false }
@@ -77,44 +79,27 @@ fun EventCard(event: Event, onClick: (Event) -> Unit) {
 
 @Composable
 fun EditDialog(
-    open: Boolean,
-    event: Event?,
-    onConfirm: (String) -> Unit,
+    event: Event,
+    onConfirm: (LocalDateTime) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val timestamp = event?.timestamp ?: Clock.System.now()
-
-    val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
+    val pagerState = rememberPagerState()
 
-    val timePickerState = remember(timestamp) {
-        with(timestamp.toLocalDateTime(TimeZone.currentSystemDefault())) {
-            TimePickerState(
-                initialHour = hour,
-                initialMinute = minute,
-                is24Hour = true
-            )
-        }
-    }
-    val datePickerState = remember(timestamp){
-        DatePickerState(
-            initialSelectedDateMillis = timestamp.toEpochMilliseconds(),
-            initialDisplayedMonthMillis = timestamp.toEpochMilliseconds(),
-            yearRange = DatePickerDefaults.YearRange,
-            initialDisplayMode = DisplayMode.Picker
-        )
-
-
+    val (datePickerState, timePickerState) = remember(event.timestamp) {
+        toDateTimeStates(event.timestamp)
     }
 
-
-    if (open) DatePickerDialog(
+    DatePickerDialog(
         confirmButton = {
             when (pagerState.currentPage) {
                 0 -> Button(onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } }) {
                     Text(text = "Next")
                 }
-                1 -> Button(onClick = {}) {
+                1 -> Button(onClick = {
+                    onConfirm(toLocalDateTime(datePickerState, timePickerState))
+                        .also { onDismiss() }
+                }) {
                     Text(text = "Confirm")
                 }
             }
@@ -166,3 +151,32 @@ fun EditDialog(
         }
     }
 }
+
+fun toDateTimeStates(timestamp: LocalDateTime) =
+
+    with(timestamp.toInstant().toEpochMilliseconds()) {
+        DatePickerState(
+            initialSelectedDateMillis = this,
+            initialDisplayedMonthMillis = this,
+            yearRange = DatePickerDefaults.YearRange,
+            initialDisplayMode = DisplayMode.Picker
+        )
+    } to with(timestamp) {
+        TimePickerState(
+            initialHour = hour,
+            initialMinute = minute,
+            is24Hour = true
+        )
+    }
+
+fun toLocalDateTime(datePickerState: DatePickerState, timePickerState: TimePickerState) =
+    (datePickerState.selectedDateMillis
+        ?.let {
+            Instant.fromEpochMilliseconds(it)
+                .plus(timePickerState.hour, HOUR)
+                .plus(timePickerState.minute, MINUTE)
+        }
+        ?: Clock.System.now()
+            ).toLocalDateTime()
+
+

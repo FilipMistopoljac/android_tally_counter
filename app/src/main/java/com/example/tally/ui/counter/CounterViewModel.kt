@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.tally.data.model.dao.Counter
 import com.example.tally.data.model.dao.Event
 import com.example.tally.data.model.schema.Counters
-import com.example.tally.ui.main.MainState
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.load
@@ -21,7 +20,7 @@ class CounterViewModel(
 
     private val id: Int = savedStateHandle["id"] ?: -1
 
-    var state by mutableStateOf(CounterState(id, Counter(EntityID(id, Counters))))
+    var state by mutableStateOf(CounterState(id, Counter(EntityID(id, Counters)), emptyList()))
         private set
 
     private fun state(block: CounterState.() -> CounterState) {
@@ -33,14 +32,18 @@ class CounterViewModel(
     }
 
     init {
-        state { copy(counter = Counter[id].load(Counter::events))}
-
+        state { all() }
     }
+
+    private fun CounterState.all() = copy(
+        counter = Counter[id].load(Counter::events),
+        events = Counter[id].events.sortedBy { it.timestamp }
+    )
 
     fun count() {
         state {
             Event.new {counter = state.counter}
-            copy(counter = Counter[id].load(Counter::events))
+            all()
         }
     }
 }
