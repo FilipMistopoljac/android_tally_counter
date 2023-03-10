@@ -5,6 +5,7 @@ package com.example.tally.ui.counter
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -49,17 +50,16 @@ fun CounterScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
 
-            EditDialog(
+            if (open) EditDialog(
                 event = event,
-                onConfirm = {},
+                onConfirm = { vm.update { event.timestamp = it } },
                 onDismiss = { open = false }
             )
 
             LazyColumn {
-                items(vm.state.counter.events.count().toInt()) {
-                    val element = vm.state.counter.events.elementAt(it)
-                    EventCard(vm.state.counter.events.elementAt(it), onClick = {
-                        event = element
+                items(vm.state.events) {
+                    EventCard(it, onClick = {
+                        event = it
                         open = true
                     })
                 }
