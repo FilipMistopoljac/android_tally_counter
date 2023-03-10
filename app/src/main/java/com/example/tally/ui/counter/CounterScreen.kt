@@ -5,7 +5,12 @@ package com.example.tally.ui.counter
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -56,7 +61,12 @@ fun CounterScreen(
                 onDismiss = { open = false }
             )
 
-            LazyColumn {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                state = rememberLazyGridState(
+                    (vm.state.events.size - 1).coerceAtLeast(0)
+                )
+            ) {
                 items(vm.state.events) {
                     EventCard(it, onClick = {
                         event = it
