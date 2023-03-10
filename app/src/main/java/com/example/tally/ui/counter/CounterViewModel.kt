@@ -46,4 +46,11 @@ class CounterViewModel(
             all()
         }
     }
+
+    fun update(statement: () -> Unit) {
+        state {
+            statement()
+            all()
+        }
+    }
 }
