@@ -2,13 +2,11 @@
 
 package com.example.tally.ui.counter
 
+import android.graphics.Paint.Align
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -17,9 +15,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.tally.R
 import com.example.tally.data.model.dao.Event
 import com.example.tally.data.model.toInstant
 import com.example.tally.data.model.toLocalDateTime
@@ -28,12 +30,14 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import kotlinx.datetime.DateTimeUnit.Companion.HOUR
 import kotlinx.datetime.DateTimeUnit.Companion.MINUTE
+import java.time.format.DateTimeFormatter
 import kotlin.properties.Delegates
 
 
 @Composable
 fun CounterScreen(
     vm: CounterViewModel,
+    navController: NavController
 ) {
     var open by remember { mutableStateOf(false) }
     var event: Event by Delegates.notNull();
@@ -45,6 +49,15 @@ fun CounterScreen(
                     "${vm.state.counter.name}", maxLines = 1, overflow = TextOverflow.Ellipsis
                 )
             },
+            actions = {
+                IconButton(onClick = { navController.navigate("chart/${vm.state.id}") }) {
+                    Icon(
+                        painterResource(R.drawable.table_chart_view_fill0_wght400_grad0_opsz48),
+                        null,
+                        modifier = Modifier.fillMaxSize(0.75f)
+                    )
+                }
+            }
         )
     }, floatingActionButton = {
         LargeFloatingActionButton(onClick = vm::count) {
@@ -62,27 +75,58 @@ fun CounterScreen(
             )
 
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Fixed(5),
                 state = rememberLazyGridState(
                     (vm.state.events.size - 1).coerceAtLeast(0)
-                )
+                ),
+                contentPadding = PaddingValues(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(vm.state.events) {
-                    EventCard(it, onClick = {
-                        event = it
-                        open = true
-                    })
+                vm.state.events.groupBy { it.timestamp.date }.forEach { date, events ->
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ProvideTextStyle(MaterialTheme.typography.titleLarge) {
+                                Text("${date.dayOfWeek.name
+                                    .lowercase()
+                                }, $date")
+                            }
+                        }
+                    }
+                    items(events) {
+                        EventCard(it, onClick = {
+                            event = it
+                            open = true
+                        })
+                    }
                 }
             }
         }
     }
 }
 
+val formatter = DateTimeFormatter.ofPattern("HH:mm")
 
 @Composable
 fun EventCard(event: Event, onClick: (Event) -> Unit) {
     Card(onClick = { onClick(event) }) {
-        Text("${event.timestamp}")
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                event.timestamp.toJavaLocalDateTime().format(formatter)
+            )
+        }
+
+
     }
 }
 
@@ -175,7 +219,7 @@ fun toDateTimeStates(timestamp: LocalDateTime) =
         TimePickerState(
             initialHour = hour,
             initialMinute = minute,
-            is24Hour = true
+            is24Hour = false
         )
     }
 

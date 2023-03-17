@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.tally.ui.chart.ChartScreen
 import com.example.tally.ui.counter.CounterScreen
 import com.example.tally.ui.counter.CounterViewModel
 import com.example.tally.ui.main.MainScreen
@@ -26,7 +27,13 @@ fun  Navigation() {
             route = "counter/{id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            CounterScreen(viewModel())
+            CounterScreen(viewModel(), navController)
+        }
+        composable(
+            route = "chart/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) {
+            ChartScreen(viewModel())
         }
     }
 }
